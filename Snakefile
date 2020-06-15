@@ -32,5 +32,5 @@ rule download_rhizosphere:
         config["threads"]
     shell:
         """
-        java -jar {input.cami_client} --download {input.linkfile} {params.output_dir} --pattern short --threads {threads}
+        java -jar {input.cami_client} --download {input.linkfile} {params.output_dir} --pattern short --retry --threads {threads}
         """
