@@ -1,0 +1,4 @@
+channels:
+ - gtcg
+dependencies:
+ - oraclejdk

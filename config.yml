@@ -1,0 +1,11 @@
+workdir: '/home/debian/cami2_rhizosphere'
+
+threads: 28
+
+rhizosphere_linkfile: 'data/rhizosphere.linkfile'
+
+cami_client_url: 'https://data.cami-challenge.org/camiClient.jar'
+
+samples:
+    sample_0: 'data/rhizosphere/reads/rhimgCAMI2_short_read_sample_0_reads.fq.gz'
+    sample_1: 'data/rhizosphere/reads/rhimgCAMI2_short_read_sample_1_reads.fq.gz'
