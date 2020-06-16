@@ -44,7 +44,9 @@ rule download_refseq:
         dir = "data"
     conda:
         "envs/aria2.yml"
+    threads:
+        config["threads"]
     shell:
         """
-        aria2c --file-allocation=none --max-tries 0 -c -x 10 -s 10 -d {params.dir} {params.url}
+        aria2c --file-allocation=none --max-tries 0 -c -x {threads} -s {threads} -d {params.dir} {params.url}
         """
