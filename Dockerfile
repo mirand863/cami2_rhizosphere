@@ -24,4 +24,28 @@ WORKDIR /opt/ganon/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DVERBOSE_CONFIG=ON -DGANON_OFFSET=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCONDA=OFF ..
 RUN make
 ENV PATH ${PATH}:/opt/ganon
+
+ENV VALIDATOR /bbx/validator
+ENV BASE_URL https://s3-us-west-1.amazonaws.com/bioboxes-tools/validate-biobox-file
+ENV VERSION 0.x.y
+RUN mkdir -p ${VALIDATOR}
+RUN wget \
+      --quiet \
+      --output-document -\
+      ${BASE_URL}/${VERSION}/validate-biobox-file.tar.xz \
+    | tar -xJf - \
+      --directory ${VALIDATOR} \
+      --strip-components=1
+ENV PATH ${PATH}:${VALIDATOR}
+RUN wget \
+    --output-document /schema.yaml \
+    https://raw.githubusercontent.com/bioboxes/rfc/master/container/binning/input_schema.yaml
+
+WORKDIR /usr/local/bin
+ENV CONVERT https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_linux_amd64
+RUN wget --output-document yaml2json --quiet ${CONVERT} && chmod 700 yaml2json
+ENV JQ http://stedolan.github.io/jq/download/linux64/jq
+RUN wget --quiet ${JQ} && chmod 700 jq
+ADD Taskfile /
+
 WORKDIR /
