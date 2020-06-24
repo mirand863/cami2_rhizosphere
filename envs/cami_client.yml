@@ -1,4 +1,6 @@
 channels:
  - gtcg
+ - anaconda
 dependencies:
  - oraclejdk
+ - wget
