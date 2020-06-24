@@ -1,0 +1,103 @@
+configfile: "config.yml"
+
+workdir: config["workdir"]
+
+rule all:
+    input:
+        sample_0 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_0_reads.fq.gz"],
+        ncbi_refseq = ["data/RefSeq_genomic_20190108.tar"],
+        ncbi_taxonomy = ["data/ncbi_taxonomy.tar"]
+
+rule download_cami_client:
+    params:
+        url = config["cami_client_url"]
+    output:
+        "results/bin/camiClient.jar"
+    conda:
+        "envs/cami_client.yml"
+    shell:
+        """
+        wget -O {output} {params.url}
+        """
+
+rule download_rhizosphere:
+    input:
+        cami_client = "results/bin/camiClient.jar",
+        linkfile = config["rhizosphere_linkfile"]
+    output:
+        sample_0 = config["samples"]["sample_0"],
+        sample_1 = config["samples"]["sample_1"],
+        sample_2 = config["samples"]["sample_2"],
+        sample_3 = config["samples"]["sample_3"],
+        sample_4 = config["samples"]["sample_4"],
+        sample_5 = config["samples"]["sample_5"],
+        sample_6 = config["samples"]["sample_6"],
+        sample_7 = config["samples"]["sample_7"],
+        sample_8 = config["samples"]["sample_8"],
+        sample_9 = config["samples"]["sample_9"],
+        sample_10 = config["samples"]["sample_10"],
+        sample_11 = config["samples"]["sample_11"],
+        sample_12 = config["samples"]["sample_12"],
+        sample_13 = config["samples"]["sample_13"],
+        sample_14 = config["samples"]["sample_14"],
+        sample_15 = config["samples"]["sample_15"],
+        sample_16 = config["samples"]["sample_16"],
+        sample_17 = config["samples"]["sample_17"],
+        sample_18 = config["samples"]["sample_18"],
+        sample_19 = config["samples"]["sample_19"],
+        sample_20 = config["samples"]["sample_20"],
+    params:
+        output_dir = "data/rhizosphere"
+    conda:
+        "envs/cami_client.yml"
+    threads:
+        config["threads"]
+    shell:
+        """
+        java -jar {input.cami_client} --download {input.linkfile} {params.output_dir} --pattern short --retry --threads {threads}
+        """
+
+rule download_refseq:
+    output:
+        "data/RefSeq_genomic_20190108.tar"
+    params:
+        url = config["ncbi_refseq_url"],
+        dir = "data"
+    conda:
+        "envs/aria2.yml"
+    threads:
+        16
+    shell:
+        """
+        aria2c --file-allocation=none --max-tries 0 -c -x {threads} -s {threads} -d {params.dir} {params.url}
+        """
+
+rule download_ncbi_taxonomy:
+    output:
+        "data/ncbi_taxonomy.tar"
+    params:
+        url = config["ncbi_taxonomy_url"],
+        dir = "data"
+    conda:
+        "envs/aria2.yml"
+    threads:
+        16
+    shell:
+        """
+        aria2c --file-allocation=none --max-tries 0 -c -x {threads} -s {threads} -d {params.dir} {params.url}
+        """
+
+rule download_ncbi_taxid:
+    output:
+        "data/ncbi_taxonomy_accession2taxid.tar"
+    params:
+        url = config["ncbi_taxid_url"],
+        dir = "data"
+    conda:
+        "envs/aria2.yml"
+    threads:
+        16
+    shell:
+        """
+        aria2c --file-allocation=none --max-tries 0 -c -x {threads} -s {threads} -d {params.dir} {params.url}
+        """

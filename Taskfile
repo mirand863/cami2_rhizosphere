@@ -1,1 +1,0 @@
-default: ganon build --db-prefix ${DB_PREFIX} --input-files ${REFSEQ} --rank ${RANK} --max-bloom-size ${MAX_BLOOM_SIZE} --seq-info nucl_gb nucl_wgs dead_nucl dead_wgs --taxdump-file ${TAXDUMP} --threads ${THREADS} && ganon classify --output-file-prefix ${OUTPUT_PREFIX} --threads ${THREADS} --db-prefix ${DB_PREFIX} --reads ${READS}
