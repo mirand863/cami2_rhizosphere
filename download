@@ -5,8 +5,29 @@ workdir: config["workdir"]
 rule all:
     input:
         sample_0 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_0_reads.fq.gz"],
+        sample_1 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_1_reads.fq.gz"],
+        sample_2 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_2_reads.fq.gz"],
+        sample_3 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_3_reads.fq.gz"],
+        sample_4 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_4_reads.fq.gz"],
+        sample_5 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_5_reads.fq.gz"],
+        sample_6 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_6_reads.fq.gz"],
+        sample_7 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_7_reads.fq.gz"],
+        sample_8 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_8_reads.fq.gz"],
+        sample_9 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_9_reads.fq.gz"],
+        sample_10 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_10_reads.fq.gz"],
+        sample_11 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_11_reads.fq.gz"],
+        sample_12 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_12_reads.fq.gz"],
+        sample_13 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_13_reads.fq.gz"],
+        sample_14 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_14_reads.fq.gz"],
+        sample_15 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_15_reads.fq.gz"],
+        sample_16 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_16_reads.fq.gz"],
+        sample_17 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_17_reads.fq.gz"],
+        sample_18 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_18_reads.fq.gz"],
+        sample_19 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_19_reads.fq.gz"],
+        sample_20 = ["data/rhizosphere/reads/rhimgCAMI2_short_read_sample_20_reads.fq.gz"],
         ncbi_refseq = ["data/RefSeq_genomic_20190108.tar"],
-        ncbi_taxonomy = ["data/ncbi_taxonomy.tar"]
+        ncbi_taxonomy = ["data/ncbi_taxonomy.tar"],
+        ncbi_taxid = ["data/ncbi_taxonomy_accession2taxid.tar"]
 
 rule download_cami_client:
     params:
