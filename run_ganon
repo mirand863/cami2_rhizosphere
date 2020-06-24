@@ -9,16 +9,22 @@ rule all:
 rule extract_files:
     input:
         taxdump = config["ncbi_taxonomy"],
+        taxid = config["ncbi_taxid"],
         refseq = config["ncbi_refseq"]
     output:
         taxdump = "results/extracted_files/ncbi_taxonomy/taxdump.tar.gz",
+        taxid = "results/extracted_files/ncbi_taxonomy/accession2taxid/nucl_gb.accession2taxid.gz",
         refseq = "results/extracted_files/refseq/refseq.fna.gz"
     params:
         base_output_folder = "results/extracted_files",
+        taxid_output_folder = "results/extracted_files/ncbi_taxonomy/accession2taxid",
+        ncbi_taxonomy_folder = "results/extracted_files/ncbi_taxonomy",
         refseq_output_folder = "results/extracted_files/refseq"
     shell:
         """
         tar -xf {input.taxdump} -C {params.base_output_folder}
+        tar -xf {input.taxid} -C {params.ncbi_taxonomy_folder}
+        mv {params.ncbi_taxonomy_folder}/ncbi_taxonomy_accession2taxid/* {params.taxid_output_folder}/
         tar -xf {input.refseq} -C {params.refseq_output_folder}
         for f in {params.refseq_output_folder}/*.gz; do cat "$f" >> {output.refseq} && rm "$f"; done
         """

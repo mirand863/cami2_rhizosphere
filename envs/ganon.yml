@@ -1,4 +1,6 @@
 channels:
  - bioconda
+ - conda-forge
 dependencies:
- - ganon
+ - ganon=0.2.3
+ - wget
