@@ -2,7 +2,9 @@ workdir: '/home/debian/cami2_rhizosphere'
 
 rhizosphere_linkfile: 'data/rhizosphere.linkfile'
 
-threads: 64
+threads: 32
+
+mem_mb: 512000
 
 ncbi_refseq_url: 'https://openstack.cebitec.uni-bielefeld.de:8080/swift/v1/CAMI_2_DATABASES/RefSeq_genomic_20190108.tar'
 
@@ -11,6 +13,12 @@ ncbi_taxonomy_url: 'https://openstack.cebitec.uni-bielefeld.de:8080/swift/v1/CAM
 ncbi_taxid_url: 'https://openstack.cebitec.uni-bielefeld.de:8080/swift/v1/CAMI_2_DATABASES/ncbi_taxonomy_accession2taxid.tar'
 
 cami_client_url: 'https://data.cami-challenge.org/camiClient.jar'
+
+ncbi_taxonomy: 'data/ncbi_taxonomy.tar'
+
+ncbi_taxid: 'data/ncbi_taxonomy_accession2taxid.tar'
+
+ncbi_refseq: 'data/RefSeq_genomic_20190108.tar'
 
 samples:
     sample_0: 'data/rhizosphere/reads/rhimgCAMI2_short_read_sample_0_reads.fq.gz'

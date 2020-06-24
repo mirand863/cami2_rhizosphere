@@ -1,0 +1,5 @@
+Extracting sequence lengths... The following command failed to execute:
+cat data/RefSeq_genomic_20190108.tar  | gawk 'BEGIN{FS=" "} /^>/ {if (seqlen){print seqlen}; printf substr($1,2)"\t";seqlen=0;next;} {seqlen+=length($0)}END{print seqlen}''utf-8' codec can't decode byte 0xf6 in position 886: invalid start byte
+Error code: 0
+Out: 
+Error: 
