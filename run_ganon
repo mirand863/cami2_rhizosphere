@@ -54,20 +54,30 @@ rule ganon_build:
         ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank taxid --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
         """
 
-rule preprocessing:
+rule deinterleave:
     input:
-        fq = lambda wildcards: os.path.abspath(config["samples"][wildcards.sample])
+        interleaved = lambda wildcards: os.path.abspath(config["samples"][wildcards.sample])
     output:
-        fq = "results/preprocessing/{sample}.fq.gz"
+        forward = "results/deinterleave/{sample}_forward.fq.gz",
+        reverse = "results/deinterleave/{sample}_reverse.fq.gz"
+    params:
+        forward = "results/deinterleave/{sample}_forward.fq",
+        reverse = "results/deinterleave/{sample}_reverse.fq"
     threads:
-        config["threads"]
+        8
     shell:
-        """zcat {input.fq} | paste - - - - - - - - | cut -f 1-4 | tr "\\t" "\\n" | pigz -9 --keep -p{threads} > {output.fq}"""
+        """
+        zcat {input.interleaved} |paste - - - - - - - - | tee >(cut -f 1-4 | tr "\t" "\n" > {params.forward}) | cut -f 5-8 | tr "\t" "\n" > {params.reverse}
+        cat {params.forward} | pigz -9 -p{threads} > {output.forward}
+        cat {params.reverse} | pigz -9 -p{threads} > {output.reverse}
+        rm -f {params.forward} {params.reverse}
+        """
 
 rule ganon_classify:
     input:
         db = "results/ganon_build/refseq.ibf",
-        fq = "results/preprocessing/{sample}.fq.gz"
+        forward = "results/deinterleave/{sample}_forward.fq.gz",
+        reverse = "results/deinterleave/{sample}_reverse.fq.gz"
     output:
         lca = "results/ganon_classify/{sample}_classified.lca"
     params:
@@ -87,5 +97,5 @@ rule ganon_classify:
         "results/benchmark/{sample}_ganon_classify.txt"
     shell:
         """
-        ganon classify --min-kmers {params.min_kmers} --output-prefix {params.output_prefix} --threads {threads} --db-prefix {params.db_prefix} --reads {input.fq}
+        ganon classify --min-kmers {params.min_kmers} --output-prefix {params.output_prefix} --threads {threads} --db-prefix {params.db_prefix} --paired-reads {input.forward} {input.reverse} > {log.std} 2> {log.err}
         """
