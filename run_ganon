@@ -4,7 +4,7 @@ workdir: config["workdir"]
 
 rule all:
     input:
-        ganon_build = ["results/ganon_build/refseq.filter"]
+        fq = ["results/ganon_classify/" + str(sample) + "_classified.lca" for sample in config["samples"]]
 
 rule extract_files:
     input:
@@ -34,7 +34,7 @@ rule ganon_build:
         taxdump = "results/extracted_files/ncbi_taxonomy/taxdump.tar.gz",
         refseq = "results/extracted_files/refseq/refseq.fna.gz"
     output:
-        "results/ganon_build/refseq.filter"
+        "results/ganon_build/refseq.ibf"
     params:
         prefix = "results/ganon_build/refseq",
         seq_info = "nucl_gb nucl_wgs dead_nucl dead_wgs"
@@ -52,4 +52,40 @@ rule ganon_build:
     shell:
         """
         ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank taxid --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
+        """
+
+rule preprocessing:
+    input:
+        fq = lambda wildcards: os.path.abspath(config["samples"][wildcards.sample])
+    output:
+        fq = "results/preprocessing/{sample}.fq.gz"
+    threads:
+        config["threads"]
+    shell:
+        """zcat {input.fq} | paste - - - - - - - - | cut -f 1-4 | tr "\\t" "\\n" | pigz -9 --keep -p{threads} > {output.fq}"""
+
+rule ganon_classify:
+    input:
+        db = "results/ganon_build/refseq.ibf",
+        fq = "results/preprocessing/{sample}.fq.gz"
+    output:
+        lca = "results/ganon_classify/{sample}_classified.lca"
+    params:
+        min_kmers = config["min_kmers"],
+        output_prefix = "results/ganon_classify/{sample}_classified",
+        db_prefix = "results/ganon_build/refseq"
+    threads:
+        config["threads"]
+    resources:
+        mem_mb = config["mem_mb"]
+    log:
+        std = "results/logs/{sample}_ganon_classify_std.txt",
+        err = "results/logs/{sample}_ganon_classify_err.txt"
+    conda:
+        "envs/ganon.yml"
+    benchmark:
+        "results/benchmark/{sample}_ganon_classify.txt"
+    shell:
+        """
+        ganon classify --min-kmers {params.min_kmers} --output-prefix {params.output_prefix} --threads {threads} --db-prefix {params.db_prefix} --reads {input.fq}
         """
