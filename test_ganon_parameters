@@ -4,7 +4,7 @@ workdir: config["workdir"]
 
 rule all:
     input:
-        fq = ["results/deinterleave/" + str(sample) + "_forward.fq.gz" for sample in config["samples"]]
+        fq = ["results/test_ganon_classify/" + str(sample) + "_classified.lca" for sample in config["samples"]]
 
 rule extract_files:
     input:
@@ -37,8 +37,7 @@ rule ganon_build:
         "results/ganon_build/refseq.ibf"
     params:
         prefix = "results/ganon_build/refseq",
-        seq_info = "nucl_gb nucl_wgs dead_nucl dead_wgs",
-	rank = config["rank"]
+        seq_info = "nucl_gb nucl_wgs dead_nucl dead_wgs"
     threads:
         config["threads"]
     resources:
@@ -52,7 +51,7 @@ rule ganon_build:
         "results/benchmark/ganon_build.txt"
     shell:
         """
-        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
+        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank taxid --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
         """
 
 rule deinterleave:
@@ -74,16 +73,36 @@ rule deinterleave:
         rm -f {params.forward} {params.reverse}
         """
 
-rule ganon_classify:
+rule subsample:
     input:
         db = "results/ganon_build/refseq.ibf",
         forward = "results/deinterleave/{sample}_forward.fq.gz",
         reverse = "results/deinterleave/{sample}_reverse.fq.gz"
     output:
-        lca = "results/ganon_classify/{sample}_classified.lca"
+        forward = "results/sampling/{sample}_0.1.fq.gz",
+        reverse = "results/sampling/{sample}_0.2.fq.gz"
+    params:
+        sample_size = 1000000,
+        replacement = 0,
+        gzip_output = 1,
+        output_prefix = "results/sampling/{sample}"        
+    conda:
+        "envs/subsample.yml"
+    shell:
+        """
+        python scripts/randomReadSubSample.py -f1 {input.forward} -f2 {input.reverse} --sample-size {params.sample_size} --replacement {params.replacement} --gzip-output {params.gzip_output} --output-prefix {params.output_prefix}
+        """
+
+rule ganon_classify:
+    input:
+        db = "results/ganon_build/refseq.ibf",
+        forward = "results/sampling/{sample}_0.1.fq.gz",
+        reverse = "results/sampling/{sample}_0.2.fq.gz"
+    output:
+        lca = "results/test_ganon_classify/{sample}_classified.lca"
     params:
         min_kmers = config["min_kmers"],
-        output_prefix = "results/ganon_classify/{sample}_classified",
+        output_prefix = "results/test_ganon_classify/{sample}_classified",
         db_prefix = "results/ganon_build/refseq"
     threads:
         config["threads"]
