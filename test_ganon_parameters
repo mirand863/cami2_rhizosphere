@@ -37,7 +37,8 @@ rule ganon_build:
         "results/ganon_build/refseq.ibf"
     params:
         prefix = "results/ganon_build/refseq",
-        seq_info = "nucl_gb nucl_wgs dead_nucl dead_wgs"
+        seq_info = "nucl_gb nucl_wgs dead_nucl dead_wgs",
+        rank = config["rank"]
     threads:
         config["threads"]
     resources:
@@ -51,7 +52,7 @@ rule ganon_build:
         "results/benchmark/ganon_build.txt"
     shell:
         """
-        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank taxid --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
+        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
         """
 
 rule deinterleave:
