@@ -96,7 +96,7 @@ rule subsample:
 
 rule ganon_classify:
     input:
-        db = "results/ganon_build/refseq.ibf",
+        db = "results/ganon_build_species/refseq.ibf" if config["rank"] == 'species' else "results/ganon_build_taxid/refseq.ibf",
         forward = "results/sampling/{sample}_0.1.fq.gz",
         reverse = "results/sampling/{sample}_0.2.fq.gz"
     output:
@@ -104,14 +104,14 @@ rule ganon_classify:
     params:
         min_kmers = config["min_kmers"],
         output_prefix = "results/test_ganon_classify/{sample}_classified",
-        db_prefix = "results/ganon_build/refseq"
+        db_prefix = "results/ganon_build_species/refseq" if config["rank"] == 'species' else "results/ganon_build_taxid/refseq"
     threads:
         config["threads"]
     resources:
         mem_mb = config["mem_mb"]
     log:
-        std = "results/logs/{sample}_ganon_classify_std.txt",
-        err = "results/logs/{sample}_ganon_classify_err.txt"
+        std = "results/test_ganon_classify/{sample}_ganon_classify_std.txt",
+        err = "results/test_ganon_classify/{sample}_ganon_classify_err.txt"
     conda:
         "envs/ganon.yml"
     benchmark:
