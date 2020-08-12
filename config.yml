@@ -6,7 +6,7 @@ threads: 32
 
 mem_mb: 512000
 
-min_kmers: 0.5
+min_kmers: 0.25
 
 rank: taxid
 
