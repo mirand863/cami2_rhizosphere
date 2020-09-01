@@ -10,6 +10,8 @@ min_kmers: 0.25
 
 rank: taxid
 
+max_bloom_size: 204800
+
 ncbi_refseq_url: 'https://openstack.cebitec.uni-bielefeld.de:8080/swift/v1/CAMI_2_DATABASES/RefSeq_genomic_20190108.tar'
 
 ncbi_taxonomy_url: 'https://openstack.cebitec.uni-bielefeld.de:8080/swift/v1/CAMI_2_DATABASES/ncbi_taxonomy.tar'
