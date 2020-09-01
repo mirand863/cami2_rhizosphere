@@ -4,7 +4,7 @@ workdir: config["workdir"]
 
 rule all:
     input:
-        fq = ["results/ganon_classify/" + str(sample) + "_classified.lca" for sample in config["samples"]]
+        fq = ["results/postprocessing/" + str(sample) + ".tsv" for sample in config["samples"]]
 
 rule extract_files:
     input:
@@ -103,6 +103,7 @@ rule ganon_build:
         err = "results/logs/ganon_build_err.txt"
     shell:
         """
+        rm -rf results/extracted_files/refseq
         ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size 1 --seq-info-file {input.top3} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
         """
 
@@ -174,3 +175,16 @@ rule ganon_classify:
         """
         ganon classify --min-kmers {params.min_kmers} --output-prefix {params.output_prefix} --threads {threads} --db-prefix {params.db_prefix} --paired-reads {input.forward} {input.reverse} > {log.std} 2> {log.err}
         """
+
+rule postprocessing:
+    input:
+        lca = "results/ganon_classify/{sample}_classified.lca"
+    params:
+        sample_name = "rhizosphere",
+        sample_number = "{sample}"
+    output:
+        tsv = "results/postprocessing/{sample}.tsv"
+    shell:
+        """sed p {input.lca} | awk '/[/]1/&&v++%2{{sub(/[/]1/, "/2")}}{{print}}' | sort | """ \
+        """awk 'BEGIN {{printf "@Version:0.9.1\\n@SampleID:{params.sample_name}_{params.sample_number}\\n\\n@@SEQUENCEID\\""" \
+        """tTAXID\\tBINID\\n"}} {{print $1 "\\t" $2 "\\t" $2}}' > {output.tsv}"""
