@@ -4,8 +4,7 @@ workdir: config["workdir"]
 
 rule all:
     input:
-        fq = ["results/ganon_build_2/refseq.ibf"]
-#        fq = ["results/ganon_classify/" + str(sample) + "_classified.lca" for sample in config["samples"]]
+        fq = ["results/ganon_classify/" + str(sample) + "_classified.lca" for sample in config["samples"]]
 
 rule extract_files:
     input:
@@ -34,7 +33,7 @@ rule acc_assembly:
     input:
         "results/extracted_files/refseq/refseq_files.txt"
     output:
-        "results/extracted_files/refseq/acc_assembly.txt"
+        "results/seqinfo/acc_assembly.txt"
     params:
         refseq_folder = "results/extracted_files/refseq"
     shell:
@@ -46,7 +45,7 @@ rule concat_refseq:
     input:
         "results/extracted_files/refseq/refseq_files.txt"
     output:
-        "results/extracted_files/refseq/refseq.fna.gz"
+        "results/concatenated_refseq/refseq.fna.gz"
     params:
         refseq_output_folder = "results/extracted_files/refseq"
     shell:
@@ -54,15 +53,14 @@ rule concat_refseq:
         for f in {params.refseq_output_folder}/*.gz; do cat "$f" >> {output}; done
         """
 
-rule ganon_build:
+rule acc_len_taxid:
     input:
         taxdump = "results/extracted_files/ncbi_taxonomy/taxdump.tar.gz",
-        refseq = "results/extracted_files/refseq/refseq.fna.gz"
+        refseq = "results/concatenated_refseq/refseq.fna.gz"
     output:
-        "results/ganon_build/refseq.ibf",
-        "results/ganon_build/refseq.gnn"
+        "results/seqinfo/refseq_acc_len_taxid.txt"
     params:
-        prefix = "results/ganon_build/refseq",
+        prefix = "results/seqinfo/refseq",
         seq_info = "nucl_gb nucl_wgs dead_nucl dead_wgs",
 	rank = config["rank"]
     threads:
@@ -70,27 +68,27 @@ rule ganon_build:
     resources:
         mem_mb = config["mem_mb"]
     log:
-        std = "results/logs/ganon_build_std.txt",
-        err = "results/logs/ganon_build_err.txt"
+        std = "results/logs/acc_len_taxid_std.txt",
+        err = "results/logs/acc_len_taxid_err.txt"
     conda:
         "envs/ganon.yml"
     benchmark:
-        "results/benchmark/ganon_build.txt"
+        "results/benchmark/acc_len_taxid.txt"
     shell:
         """
-        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
+        python scripts/acc_len_taxid.py build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size {resources.mem_mb} --seq-info {params.seq_info} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
         """
 
-rule ganon_build_2:
+rule ganon_build:
     input:
         taxdump = "results/extracted_files/ncbi_taxonomy/taxdump.tar.gz",
-        refseq = "results/extracted_files/refseq/refseq.fna.gz",
-        top3 = "results/ganon_build/seqinfo_assembly_top_3.txt"
+        refseq = "results/concatenated_refseq/refseq.fna.gz",
+        top3 = "results/seqinfo/seqinfo_assembly_top_3.txt"
     output:
-        "results/ganon_build_2/refseq.ibf",
-        "results/ganon_build_2/refseq.gnn"
+        "results/ganon_build/refseq.ibf",
+        "results/ganon_build/refseq.gnn"
     params:
-        prefix = "results/ganon_build_2/refseq",
+        prefix = "results/ganon_build/refseq",
         rank = config["rank"]
     threads:
         config["threads"]
@@ -100,27 +98,20 @@ rule ganon_build_2:
         "envs/ganon.yml"
     benchmark:
         "results/benchmark/ganon_build.txt"
+    log:
+        std = "results/logs/ganon_build_std.txt",
+        err = "results/logs/ganon_build_err.txt"
     shell:
         """
-        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size 1 --seq-info-file {input.top3} --taxdump-file {input.taxdump} --threads {threads}
-        """
-
-rule extract_seqinfo:
-    input:
-        "results/ganon_build/refseq.gnn"
-    output:
-        "results/ganon_build/seqinfo.txt"
-    shell:
-        """
-        python scripts/extract_seqinfo.py {input} {output}
+        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size 1 --seq-info-file {input.top3} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
         """
 
 rule join:
     input:
-        seqinfo = "results/ganon_build/seqinfo.txt",
-        acc_assembly = "results/extracted_files/refseq/acc_assembly.txt"
+        seqinfo = "results/seqinfo/refseq_acc_len_taxid.txt",
+        acc_assembly = "results/seqinfo/acc_assembly.txt"
     output:
-        "results/ganon_build/seqinfo_assembly.txt"
+        "results/seqinfo/seqinfo_assembly.txt"
     shell:
         """
         join <(sort -k1,1 {input.seqinfo}) <(sort -k1,1 {input.acc_assembly}) -t$'\\t' -o "1.1,1.2,1.3,2.2" > {output}
@@ -128,9 +119,9 @@ rule join:
 
 rule top3:
     input:
-        "results/ganon_build/seqinfo_assembly.txt"
+        "results/seqinfo/seqinfo_assembly.txt"
     output:
-        "results/ganon_build/seqinfo_assembly_top_3.txt"
+        "results/seqinfo/seqinfo_assembly_top_3.txt"
     params:
         top = 3
     shell:
