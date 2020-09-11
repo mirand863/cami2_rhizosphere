@@ -28,4 +28,8 @@ The parameter --use-conda tells snakemake to use conda to manage dependencies of
 
 # Running Ganon
 
-To run ganon, simply execute the command `snakemake --use-conda --cores 112 -s run_ganon`
+To run ganon, simply execute the command:
+
+`snakemake --use-conda --cores 112 -s run_ganon`
+
+The binning output will be stored in the folder results/postprocessing. These files are already in the CAMI taxonomic binning output format.
