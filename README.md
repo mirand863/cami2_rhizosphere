@@ -25,3 +25,7 @@ The only file required to download the datasets is the rhizosphere linkfile, whi
 `snakemake --use-conda --cores 112 -s download_datasets`
 
 The parameter --use-conda tells snakemake to use conda to manage dependencies of the pipeline, while with the parameter --cores you can choose how many cpus can be used and the parameter -s selects the snakefile to be run.
+
+# Running Ganon
+
+To run ganon, simply execute the command `snakemake --use-conda --cores 112 -s run_ganon`
