@@ -2,9 +2,9 @@ workdir: '/home/debian/cami2_rhizosphere'
 
 rhizosphere_linkfile: 'data/rhizosphere.linkfile'
 
-threads: 32
+threads: 16
 
-mem_mb: 512000
+mem_mb: 256000
 
 min_kmers: 0.25
 
