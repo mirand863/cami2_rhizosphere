@@ -18,10 +18,18 @@ conda activate snakemake
 
 Next we will run the command `pwd` and update the workdir in the file config.yml with its output.
 
-# Downloading datasets
+# Download datasets
 
 The only file required to download the datasets is the rhizosphere linkfile, which can be download from the cami 2 website. This linkfile should be saved in the path data/rhizosphere.linkfile. Alternatively, this path can be altered in the config.yml file. To download the datasets, please run:
 
 `snakemake --use-conda --cores 112 -s download_datasets`
 
 The parameter --use-conda tells snakemake to use conda to manage dependencies of the pipeline, while with the parameter --cores you can choose how many cpus can be used and the parameter -s selects the snakefile to be run.
+
+# Running Ganon
+
+To run ganon, simply execute the command:
+
+`snakemake --use-conda --cores 112 -s run_ganon`
+
+The binning output will be stored in the folder results/postprocessing. These files are already in the CAMI taxonomic binning output format.
