@@ -18,6 +18,14 @@ conda activate snakemake
 
 Next we will run the command `pwd` and update the workdir in the file config.yml with its output.
 
+By default conda will fail to activate the environments in the pipeline, but that can be easily fixed if we copy the activate binary from the base environment to the one we just created. This can be done running the command:
+
+```
+cp ~/anaconda3/bin/activate ~/anaconda3/envs/snakemake/bin/
+```
+
+Please, replace the conda installation path accordingly.
+
 # Download datasets
 
 The only file required to download the datasets is the rhizosphere linkfile, which can be download from the cami 2 website. This linkfile should be saved in the path data/rhizosphere.linkfile. Alternatively, this path can be altered in the config.yml file. To download the datasets, please run:
