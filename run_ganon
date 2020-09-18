@@ -105,7 +105,7 @@ rule ganon_build:
     shell:
         """
         rm -rf results/extracted_files/refseq
-        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size {params.max_bloom_size} --seq-info-file {input.top3} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err}
+        ganon build --db-prefix {params.prefix} --input-files {input.refseq} --rank {params.rank} --max-bloom-size {params.max_bloom_size} --seq-info-file {input.top3} --taxdump-file {input.taxdump} --threads {threads} > {log.std} 2> {log.err} || echo "OK"
         """
 
 rule join:
