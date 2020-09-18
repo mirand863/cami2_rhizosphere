@@ -16,6 +16,14 @@ conda env create -f envs/snakemake.yml
 conda activate snakemake
 ```
 
+By default conda will fail to activate the environments in the pipeline, but that can be easily fixed if we copy the activate binary from the base environment to the one we just created. This can be done running the command:
+
+```
+cp ~/anaconda3/bin/activate ~/anaconda3/envs/snakemake/bin/
+```
+
+Please, replace the conda installation path accordingly.
+
 Next we will run the command `pwd` and update the workdir in the file config.yml with its output.
 
 # Download datasets
