@@ -174,7 +174,7 @@ rule ganon_classify:
         "results/benchmark/{sample}_ganon_classify.txt"
     shell:
         """
-        ganon classify --min-kmers {params.min_kmers} --output-prefix {params.output_prefix} --threads {threads} --db-prefix {params.db_prefix} --paired-reads {input.forward} {input.reverse} > {log.std} 2> {log.err}
+        ganon classify --min-kmers {params.min_kmers} --output-prefix {params.output_prefix} --threads {threads} --db-prefix {params.db_prefix} --paired-reads {input.forward} {input.reverse} > {log.std} 2> {log.err} || echo "OK"
         """
 
 rule postprocessing:
